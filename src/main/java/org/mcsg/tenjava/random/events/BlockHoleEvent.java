@@ -8,6 +8,7 @@ import org.bukkit.event.Event;
 import org.mcsg.tenjava.random.util.Effects;
 import org.mcsg.tenjava.random.util.ParticalEffect;
 import org.mcsg.tenjava.random.util.ParticalEffect.Partical;
+import org.mcsg.tenjava.random.util.Settings;
 
 public class BlockHoleEvent implements TickableEvent{
 
@@ -15,11 +16,11 @@ public class BlockHoleEvent implements TickableEvent{
 	
 	private Location loc;
 	private Random rand = new Random ();
-	private int stop = rand.nextInt(500) + 300;
+	private int stop = rand.nextInt(200) + 100;
 	
 	@Override
 	public <T extends Event> boolean isRandom(T event) {
-		return rand.nextInt(2000) == 100 && Bukkit.getOnlinePlayers().length > 0;
+		return rand.nextInt(Settings.options.BLOCK_HOLE_RANDOM) == 100 && Bukkit.getOnlinePlayers().length > 0;
 	}
 
 	@Override

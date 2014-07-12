@@ -14,30 +14,29 @@ import org.bukkit.util.Vector;
 import org.mcsg.tenjava.random.util.Effects;
 import org.mcsg.tenjava.random.util.ParticalEffect;
 import org.mcsg.tenjava.random.util.ParticalEffect.Partical;
+import org.mcsg.tenjava.random.util.Settings;
 
 public class AsteroidEvent implements TickableEvent{
 
 	private static final Random rand = new Random();
 	private ArrayList<FallingBlock> blocks = new ArrayList<>();
-	Vector vel = new Vector(rand.nextDouble() * 4 - 2, rand.nextDouble() * 1.5 - 0.75, rand.nextDouble() * 4 - 2);
+	Vector vel = new Vector(rand.nextDouble() * 4 - 2, rand.nextDouble() - 0.5, rand.nextDouble() * 4 - 2);
 
 	public <T extends Event> boolean isRandom(T event){
-		return rand.nextInt(1000) == 100 && Bukkit.getOnlinePlayers().length > 0;
+		return rand.nextInt(Settings.options.AST_RANDOM) == 1 && Bukkit.getOnlinePlayers().length > 0;
 	}
 	
 	@SuppressWarnings("deprecation")
 	@Override
 	public <T extends Event> void startEvent(T event) {
-		System.out.println("loaded");
 		int bcount = rand.nextInt(15);
-		Location start = Bukkit.getOnlinePlayers()[rand.nextInt(Bukkit.getOnlinePlayers().length)].getLocation().add(rand.nextInt(1) - 0, 100, rand.nextInt(1) - 0);
+		Location start = Bukkit.getOnlinePlayers()[rand.nextInt(Bukkit.getOnlinePlayers().length)].getLocation().add(0, 100, 0);
 		for(int a = 0; a < bcount; a++){
-			Location l = new Location(start.getWorld(), start.getX() + rand.nextInt(75) - 40, start.getY() + rand.nextInt(75) - 40, start.getZ() + rand.nextInt(75) - 40);
-			System.out.println("Spawning at "+ l);
+			Location l = new Location(start.getWorld(), start.getX() + rand.nextInt(25) - 13, start.getY() + rand.nextInt(25) - 13, start.getZ() + rand.nextInt(25) - 13);
 
 			FallingBlock block = l.getWorld().spawnFallingBlock(l, 173, (byte) 0);
 			blocks.add(block);
-			block.setVelocity(vel.add(new Vector(rand.nextDouble() * 0.2 - 0.1,rand.nextDouble() * 0.2 - 0.1, rand.nextDouble() * 0.2 - 0.1 )));
+			block.setVelocity(vel.add(new Vector(rand.nextDouble() * 0.4 - 0.3,rand.nextDouble() * 0.2 - 0.1, rand.nextDouble() * 0.4 - 0.3 )));
 		}
 	}
 
@@ -54,14 +53,14 @@ public class AsteroidEvent implements TickableEvent{
 			if(tick % 5 == 0)
 			ParticalEffect.playEffect(Partical.FireworksSpark, block.getLocation());
 			Location l = block.getLocation().clone();
-			if(new Location(l.getWorld(), l.getX(), l.getY() - 2, l.getZ()).getBlock().getType() != Material.AIR){
-				Effects.createExplosion(block.getLocation().subtract(0, 3, 0), 4);
+			if(new Location(l.getWorld(), l.getX(), l.getY() - 3, l.getZ()).getBlock().getType() != Material.AIR){
+				Effects.createExplosion(block.getLocation().subtract(0, 4, 0), 4);
 				block.remove();
 				blocks.remove(block);
 				for(int a = 0; a < rand.nextInt(3); a++)
 				l.getWorld().dropItemNaturally(l, new ItemStack(Material.DIAMOND_ORE));
 			}
-			if(blocks.size() < 4 || tick > 200){
+			if(tick > 300){
 				blocks.clear();
 				return true;
 			}

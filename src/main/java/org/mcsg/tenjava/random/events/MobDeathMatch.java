@@ -28,6 +28,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.mcsg.tenjava.random.TenJava;
 import org.mcsg.tenjava.random.util.Region;
+import org.mcsg.tenjava.random.util.Settings;
 
 public class MobDeathMatch implements TickableEvent, Listener{
 
@@ -42,7 +43,7 @@ public class MobDeathMatch implements TickableEvent, Listener{
 	private List<Monster> mobs  = new ArrayList<Monster>();
 	private List<Location> fire = new ArrayList<Location>();
 	public <T extends Event> boolean isRandom(T event){
-		return !inDeath.contains(((EntityDamageByEntityEvent) event).getDamager()) && rand.nextInt(20) == 5;
+		return !inDeath.contains(((EntityDamageByEntityEvent) event).getDamager()) && rand.nextInt(Settings.options.MOB_DEATH_MATCH_RANDOM) == 1;
 	}
 
 	@Override
@@ -136,8 +137,7 @@ public class MobDeathMatch implements TickableEvent, Listener{
 	Region trg; 
 	@Override
 	public boolean tick() {
-		if(end) return true;
-		System.out.println(tick);
+		if(end || player == null) return true;
 		tick ++;
 		if(tick < 30 && tick % 2 == 0){
 			int no = tick / 2;
@@ -165,6 +165,7 @@ public class MobDeathMatch implements TickableEvent, Listener{
 	}
 
 	public void endGame(){
+		inDeath.remove(player);
 		clearBorder();
 		player = null;
 		rg = null;
