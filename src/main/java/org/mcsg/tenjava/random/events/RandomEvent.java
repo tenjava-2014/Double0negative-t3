@@ -10,6 +10,9 @@ import org.bukkit.event.Event;
  */
 public interface RandomEvent {
 
+	
+	public boolean isRandom();
+	
 	/**
 	 * Start the event
 	 * 

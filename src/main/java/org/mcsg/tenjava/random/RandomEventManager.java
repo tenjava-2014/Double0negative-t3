@@ -10,10 +10,10 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockEvent;
-import org.bukkit.event.entity.EntityEvent;
-import org.bukkit.event.player.PlayerEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.mcsg.tenjava.random.bukkit_events.ServerTickEvent;
+import org.mcsg.tenjava.random.events.AstroidEvent;
+import org.mcsg.tenjava.random.events.MobDeathMatch;
 import org.mcsg.tenjava.random.events.RandomEvent;
 import org.mcsg.tenjava.random.events.TestEvent;
 import org.mcsg.tenjava.random.events.TickableEvent;
@@ -42,8 +42,8 @@ public class RandomEventManager implements Listener{
 	public void setup(){
 		nextRandomTick = rand.nextInt(maxBetweenTicks);
 		
-		addEvent(BlockBreakEvent.class, new TestEvent());
-		
+		addEvent(BlockBreakEvent.class, new AstroidEvent());
+		addEvent(EntityDamageByEntityEvent.class, new MobDeathMatch());
 		
 		
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(TenJava.getPlugin(), () -> {
@@ -90,20 +90,15 @@ public class RandomEventManager implements Listener{
 	}
 	
 	@EventHandler
-	public <T extends BlockEvent> void onEvent(T e){
+	public  void event(BlockBreakEvent e){
 		onEvent(e);
 	}
 	
 	@EventHandler
-	public <T extends PlayerEvent> void onEvent(T e){
+	public void event(EntityDamageByEntityEvent e){
 		onEvent(e);
 	}
 	
-	
-	@EventHandler
-	public <T extends EntityEvent> void onEvent(T e){
-		onEvent(e);
-	}
 	
 	public <T extends Event> void onEvent(T event){
 		List<? extends RandomEvent> list = events.get(event.getClass());

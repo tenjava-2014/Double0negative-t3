@@ -5,6 +5,10 @@ import org.bukkit.event.Event;
 
 public class TestEvent implements TickableEvent{
 
+	public boolean isRandom(){
+		return true;
+	}
+	
 	int tick = 0;
 	
 	@Override
