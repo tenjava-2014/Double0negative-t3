@@ -40,6 +40,9 @@ public class RandomEventManager implements Listener{
 
 	public void setup(){
 
+		
+		//Add events. Null events are random events. Others are called randomly on the 
+		//Corresponding bukkit event.
 		addEvent(null, new AsteroidEvent());
 		addEvent(EntityDamageByEntityEvent.class, new MobDeathMatch());
 		addEvent(null, new BlockHoleEvent());

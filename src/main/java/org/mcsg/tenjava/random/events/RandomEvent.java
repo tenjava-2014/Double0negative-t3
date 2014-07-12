@@ -10,7 +10,11 @@ import org.bukkit.event.Event;
  */
 public interface RandomEvent {
 
-	
+	/**
+	 * Test if this event should start. 
+	 * @param event
+	 * @return should it start?
+	 */
 	public<T extends Event> boolean isRandom(T event);
 	
 	/**

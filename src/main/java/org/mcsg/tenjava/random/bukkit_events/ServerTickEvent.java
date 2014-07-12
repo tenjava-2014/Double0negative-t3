@@ -3,6 +3,12 @@ package org.mcsg.tenjava.random.bukkit_events;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+
+/**
+ * Event is called once per tick.
+ * @author drew
+ *
+ */
 public class ServerTickEvent extends Event{
 
 	private static final HandlerList handlers = new HandlerList();
