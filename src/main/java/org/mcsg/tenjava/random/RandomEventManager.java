@@ -10,10 +10,15 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockEvent;
+import org.bukkit.event.entity.EntityEvent;
+import org.bukkit.event.player.PlayerEvent;
 import org.mcsg.tenjava.random.bukkit_events.ServerTickEvent;
 import org.mcsg.tenjava.random.events.RandomEvent;
 import org.mcsg.tenjava.random.events.TestEvent;
 import org.mcsg.tenjava.random.events.TickableEvent;
+import org.mcsg.tenjava.random.util.MultiMapLongTrigger;
+import org.mcsg.tenjava.random.util.Trigger;
 
 public class RandomEventManager implements Listener{
 
@@ -25,7 +30,7 @@ public class RandomEventManager implements Listener{
 		return instance;
 	}
 	
-		
+	private final MultiMapLongTrigger triggers = new MultiMapLongTrigger();
 	private HashMap<Class<? extends Event>, List<RandomEvent>> events = new HashMap<>();
 	private List<TickableEvent> tickEvents = new ArrayList<>();
 	private Random rand = new Random();
@@ -37,7 +42,6 @@ public class RandomEventManager implements Listener{
 	public void setup(){
 		nextRandomTick = rand.nextInt(maxBetweenTicks);
 		
-		addEvent(null, new TestEvent());
 		addEvent(BlockBreakEvent.class, new TestEvent());
 		
 		
@@ -70,21 +74,47 @@ public class RandomEventManager implements Listener{
 				}
 			}
 		}
+		
+		for (final Long l : triggers.keySet()) {
+			if (e.getTick() == 0 || e.getTick() % l == 0) {
+				List<Trigger> trigs = triggers.get(l);
+				new ArrayList<Trigger>(trigs).stream().forEach((t) -> {
+					if(t.check()){ t.execute(); trigs.remove(t); }
+				});
+			}
+		}
+	}
+	
+	public void registerTrigger(Trigger t, long frequency) {
+		triggers.put(frequency, t);
 	}
 	
 	@EventHandler
-	public <T extends Event>void onEvent(T e){
-		List<? extends RandomEvent> list = events.get(e.getClass());
+	public <T extends BlockEvent> void onEvent(T e){
+		onEvent(e);
+	}
+	
+	@EventHandler
+	public <T extends PlayerEvent> void onEvent(T e){
+		onEvent(e);
+	}
+	
+	
+	@EventHandler
+	public <T extends EntityEvent> void onEvent(T e){
+		onEvent(e);
+	}
+	
+	public <T extends Event> void onEvent(T event){
+		List<? extends RandomEvent> list = events.get(event.getClass());
 		if(list != null && list.size() > 0){
 			RandomEvent revent = list.get(rand.nextInt(list.size())).getInstance();
-			revent.startEvent(e);
+			revent.startEvent(event);
 			if(revent instanceof TickableEvent){
 				tickEvents.add((TickableEvent) revent);
 			}
 		}
 	}
-	
-	
 	
 	
 }
