@@ -10,6 +10,7 @@ public class ParticalEffect {
 		Smoke("smoke"),
 		FireworksSpark("fireworksSpark"),
 		LargeSmoke("largesmoke"),
+		Portal("portal"),
 		;
 		
 		

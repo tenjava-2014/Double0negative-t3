@@ -22,7 +22,7 @@ public class AsteroidEvent implements TickableEvent{
 	Vector vel = new Vector(rand.nextDouble() * 4 - 2, rand.nextDouble() * 1.5 - 0.75, rand.nextDouble() * 4 - 2);
 
 	public <T extends Event> boolean isRandom(T event){
-		return true;
+		return rand.nextInt(1000) == 100 && Bukkit.getOnlinePlayers().length > 0;
 	}
 	
 	@SuppressWarnings("deprecation")

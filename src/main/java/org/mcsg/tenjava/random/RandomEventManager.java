@@ -13,6 +13,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.mcsg.tenjava.random.bukkit_events.ServerTickEvent;
 import org.mcsg.tenjava.random.events.AsteroidEvent;
+import org.mcsg.tenjava.random.events.BlockHoleEvent;
 import org.mcsg.tenjava.random.events.MobDeathMatch;
 import org.mcsg.tenjava.random.events.RandomEvent;
 import org.mcsg.tenjava.random.events.TestEvent;
@@ -36,14 +37,12 @@ public class RandomEventManager implements Listener{
 	private Random rand = new Random();
 
 	private long tick = 0;
-	private long nextRandomTick = 0;
-	private int maxBetweenTicks = 100;
 
 	public void setup(){
-		nextRandomTick = rand.nextInt(maxBetweenTicks);
 
-		addEvent(BlockBreakEvent.class, new AsteroidEvent());
+		addEvent(null, new AsteroidEvent());
 		addEvent(EntityDamageByEntityEvent.class, new MobDeathMatch());
+		addEvent(null, new BlockHoleEvent());
 
 
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(TenJava.getPlugin(), () -> {
@@ -67,14 +66,16 @@ public class RandomEventManager implements Listener{
 				tickEvents.remove(tickable);
 			}
 		}
-		if(e.getTick() >= nextRandomTick){
-			nextRandomTick += rand.nextInt(maxBetweenTicks);
-			List<? extends RandomEvent> list = events.get(null);
-			if(list != null && list.size() > 0){
-				RandomEvent revent = list.get(rand.nextInt(list.size())).getInstance();
-				revent.startEvent(null);
-				if(revent instanceof TickableEvent){
-					tickEvents.add((TickableEvent) revent);
+
+		for(RandomEvent event : events.get(null)){
+			if(event.isRandom(null)){
+				List<? extends RandomEvent> list = events.get(null);
+				if(list != null && list.size() > 0){
+					RandomEvent revent = list.get(rand.nextInt(list.size())).getInstance();
+					revent.startEvent(null);
+					if(revent instanceof TickableEvent){
+						tickEvents.add((TickableEvent) revent);
+					}
 				}
 			}
 		}
@@ -109,6 +110,7 @@ public class RandomEventManager implements Listener{
 		if(list != null && list.size() > 0){
 			RandomEvent revent = list.get(rand.nextInt(list.size())).getInstance();
 			if(revent.isRandom(event)){
+				System.out.println("Starting new event "+revent.getClass().getName());
 				revent.startEvent(event);
 				if(revent instanceof TickableEvent){
 					tickEvents.add((TickableEvent) revent);
