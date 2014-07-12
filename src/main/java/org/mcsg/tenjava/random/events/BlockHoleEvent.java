@@ -19,7 +19,7 @@ public class BlockHoleEvent implements TickableEvent{
 	
 	@Override
 	public <T extends Event> boolean isRandom(T event) {
-		return rand.nextInt(10000) == 100 && Bukkit.getOnlinePlayers().length > 0;
+		return rand.nextInt(2000) == 100 && Bukkit.getOnlinePlayers().length > 0;
 	}
 
 	@Override

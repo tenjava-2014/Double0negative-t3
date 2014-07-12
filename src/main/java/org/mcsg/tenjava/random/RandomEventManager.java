@@ -67,16 +67,14 @@ public class RandomEventManager implements Listener{
 			}
 		}
 
-		for(RandomEvent event : events.get(null)){
-			if(event.isRandom(null)){
-				List<? extends RandomEvent> list = events.get(null);
-				if(list != null && list.size() > 0){
-					RandomEvent revent = list.get(rand.nextInt(list.size())).getInstance();
-					revent.startEvent(null);
-					if(revent instanceof TickableEvent){
-						tickEvents.add((TickableEvent) revent);
-					}
+		for(RandomEvent revent : events.get(null)){
+			if(revent.isRandom(null)){
+				System.out.println("Starting new event "+revent.getClass().getName());
+				revent.startEvent(null);
+				if(revent instanceof TickableEvent){
+					tickEvents.add((TickableEvent) revent);
 				}
+
 			}
 		}
 
