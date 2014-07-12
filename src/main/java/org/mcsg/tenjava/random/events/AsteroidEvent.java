@@ -15,7 +15,7 @@ import org.mcsg.tenjava.random.util.Effects;
 import org.mcsg.tenjava.random.util.ParticalEffect;
 import org.mcsg.tenjava.random.util.ParticalEffect.Partical;
 
-public class AstroidEvent implements TickableEvent{
+public class AsteroidEvent implements TickableEvent{
 
 	private static final Random rand = new Random();
 	private ArrayList<FallingBlock> blocks = new ArrayList<>();
@@ -43,7 +43,7 @@ public class AstroidEvent implements TickableEvent{
 
 	@Override
 	public RandomEvent getInstance() {
-		return new AstroidEvent();
+		return new AsteroidEvent();
 	}
 
 	int tick = 0;

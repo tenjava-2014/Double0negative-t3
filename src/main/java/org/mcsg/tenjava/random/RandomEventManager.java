@@ -12,7 +12,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.mcsg.tenjava.random.bukkit_events.ServerTickEvent;
-import org.mcsg.tenjava.random.events.AstroidEvent;
+import org.mcsg.tenjava.random.events.AsteroidEvent;
 import org.mcsg.tenjava.random.events.MobDeathMatch;
 import org.mcsg.tenjava.random.events.RandomEvent;
 import org.mcsg.tenjava.random.events.TestEvent;
@@ -42,7 +42,7 @@ public class RandomEventManager implements Listener{
 	public void setup(){
 		nextRandomTick = rand.nextInt(maxBetweenTicks);
 
-		addEvent(BlockBreakEvent.class, new AstroidEvent());
+		addEvent(BlockBreakEvent.class, new AsteroidEvent());
 		addEvent(EntityDamageByEntityEvent.class, new MobDeathMatch());
 
 
