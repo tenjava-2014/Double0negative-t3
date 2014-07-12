@@ -167,6 +167,10 @@ public class MobDeathMatch implements TickableEvent, Listener{
 	}
 
 	public void endGame(){
+		for(Monster mob : mobs){
+			mob.remove();
+		}
+		mobs.clear();
 		inDeath.remove(player);
 		clearBorder();
 		player = null;
