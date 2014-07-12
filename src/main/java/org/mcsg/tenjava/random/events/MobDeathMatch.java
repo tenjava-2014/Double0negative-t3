@@ -113,6 +113,8 @@ public class MobDeathMatch implements TickableEvent, Listener{
 
 			}
 		}
+		player.setFireTicks(0);
+		
 	}
 
 
