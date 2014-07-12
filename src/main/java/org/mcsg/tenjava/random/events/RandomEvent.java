@@ -1,5 +1,7 @@
 package org.mcsg.tenjava.random.events;
 
+import org.bukkit.event.Event;
+
 
 /**
  * Interface for a random event.
@@ -12,7 +14,7 @@ public interface RandomEvent {
 	 * Start the event
 	 * 
 	 */
-	public void startEvent();
+	public <T extends Event> void startEvent(T event);
 	
 	
 	

@@ -1,15 +1,15 @@
 package org.mcsg.tenjava.random.events;
 
 import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
 
 public class TestEvent implements TickableEvent{
 
 	int tick = 0;
 	
 	@Override
-	public void startEvent() {
+	public <T extends Event> void startEvent(T event) {
 		Bukkit.broadcastMessage("Test event starting");
-		
 	}
 
 	@Override
@@ -23,5 +23,7 @@ public class TestEvent implements TickableEvent{
 	public RandomEvent getInstance() {
 		return new TestEvent();
 	}
+
+
 
 }
