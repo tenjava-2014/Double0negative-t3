@@ -8,6 +8,8 @@ public class ParticalEffect {
 
 	public enum Partical {
 		Smoke("smoke"),
+		FireworksSpark("fireworksSpark"),
+		LargeSmoke("largesmoke"),
 		;
 		
 		
@@ -21,7 +23,7 @@ public class ParticalEffect {
 	}
 	
 	
-	public void playEffect(Partical part , Location loc ){
+	public static  void playEffect(Partical part , Location loc ){
 		PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(part.getName(),(float) loc.getX(), (float)loc.getY(), (float)loc.getZ(), 0, 0, 0, 1, 10);
 		PacketUtil.sendPacketToAll(packet);
 	}

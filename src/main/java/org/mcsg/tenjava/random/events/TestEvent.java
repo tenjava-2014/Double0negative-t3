@@ -5,7 +5,7 @@ import org.bukkit.event.Event;
 
 public class TestEvent implements TickableEvent{
 
-	public boolean isRandom(){
+	public <T extends Event> boolean isRandom(T event){
 		return true;
 	}
 	

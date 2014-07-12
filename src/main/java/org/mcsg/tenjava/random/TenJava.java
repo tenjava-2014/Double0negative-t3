@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.mcsg.tenjava.random.util.Effects;
 
 public class TenJava extends JavaPlugin {
 	
@@ -12,9 +13,8 @@ public class TenJava extends JavaPlugin {
 	public void onEnable(){
 		this.plugin = this;
 		
-		RandomEventManager.
-		getInstance().
-		setup();
+		RandomEventManager.getInstance().setup();
+		Bukkit.getPluginManager().registerEvents(new Effects(), this);
 	}
 	
 	public void onDisable(){

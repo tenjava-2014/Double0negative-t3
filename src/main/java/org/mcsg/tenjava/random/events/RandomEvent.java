@@ -11,7 +11,7 @@ import org.bukkit.event.Event;
 public interface RandomEvent {
 
 	
-	public boolean isRandom();
+	public<T extends Event> boolean isRandom(T event);
 	
 	/**
 	 * Start the event

@@ -25,44 +25,48 @@ public class RandomEventManager implements Listener{
 	//singleton instance
 	private static RandomEventManager instance = new RandomEventManager();
 	private RandomEventManager(){}
-	
+
 	public static RandomEventManager getInstance(){
 		return instance;
 	}
-	
+
 	private final MultiMapLongTrigger triggers = new MultiMapLongTrigger();
 	private HashMap<Class<? extends Event>, List<RandomEvent>> events = new HashMap<>();
 	private List<TickableEvent> tickEvents = new ArrayList<>();
 	private Random rand = new Random();
-	
+
 	private long tick = 0;
 	private long nextRandomTick = 0;
 	private int maxBetweenTicks = 100;
-	
+
 	public void setup(){
 		nextRandomTick = rand.nextInt(maxBetweenTicks);
-		
+
 		addEvent(BlockBreakEvent.class, new AstroidEvent());
 		addEvent(EntityDamageByEntityEvent.class, new MobDeathMatch());
-		
-		
+
+
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(TenJava.getPlugin(), () -> {
 			tick++;
 			TenJava.fireEvent(new ServerTickEvent(tick));
 		}, 0, 1);
 		Bukkit.getPluginManager().registerEvents(this, TenJava.getPlugin());
 	}
-	
+
 	public void addEvent(Class<? extends Event> bukkitEvent, RandomEvent event){
 		List<RandomEvent> list = events.getOrDefault(bukkitEvent, new ArrayList<RandomEvent>());
 		list.add(event);
 		events.put(bukkitEvent, list);
 	}
-	
+
 
 	@EventHandler
 	public void onTick(ServerTickEvent e){
-		new ArrayList<>(tickEvents).stream().forEach((tickable) -> {if(tickable.tick()) tickEvents.remove(tickable); });
+		for(TickableEvent tickable : tickEvents.toArray(new TickableEvent[0])){
+			if(tickable.tick()){
+				tickEvents.remove(tickable);
+			}
+		}
 		if(e.getTick() >= nextRandomTick){
 			nextRandomTick += rand.nextInt(maxBetweenTicks);
 			List<? extends RandomEvent> list = events.get(null);
@@ -74,7 +78,7 @@ public class RandomEventManager implements Listener{
 				}
 			}
 		}
-		
+
 		for (final Long l : triggers.keySet()) {
 			if (e.getTick() == 0 || e.getTick() % l == 0) {
 				List<Trigger> trigs = triggers.get(l);
@@ -84,32 +88,34 @@ public class RandomEventManager implements Listener{
 			}
 		}
 	}
-	
+
 	public void registerTrigger(Trigger t, long frequency) {
 		triggers.put(frequency, t);
 	}
-	
+
 	@EventHandler
 	public  void event(BlockBreakEvent e){
 		onEvent(e);
 	}
-	
+
 	@EventHandler
 	public void event(EntityDamageByEntityEvent e){
 		onEvent(e);
 	}
-	
-	
+
+
 	public <T extends Event> void onEvent(T event){
 		List<? extends RandomEvent> list = events.get(event.getClass());
 		if(list != null && list.size() > 0){
 			RandomEvent revent = list.get(rand.nextInt(list.size())).getInstance();
-			revent.startEvent(event);
-			if(revent instanceof TickableEvent){
-				tickEvents.add((TickableEvent) revent);
+			if(revent.isRandom(event)){
+				revent.startEvent(event);
+				if(revent instanceof TickableEvent){
+					tickEvents.add((TickableEvent) revent);
+				}
 			}
 		}
 	}
-	
-	
+
+
 }

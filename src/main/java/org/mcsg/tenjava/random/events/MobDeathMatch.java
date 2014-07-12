@@ -9,46 +9,51 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Zombie;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockFadeEvent;
-import org.bukkit.event.block.BlockFormEvent;
-import org.bukkit.event.block.BlockIgniteEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.ItemStack;
 import org.mcsg.tenjava.random.TenJava;
 import org.mcsg.tenjava.random.util.Region;
 
 public class MobDeathMatch implements TickableEvent, Listener{
 
+	private static List<Player> inDeath = new ArrayList<Player>();
+	
 	private Region rg;
 	private Region outer;
 	private Player player;
+	private Location center;
+	private Monster mob;
+	private Random rand = new Random();
 	private List<Monster> mobs  = new ArrayList<Monster>();
 	private List<Location> fire = new ArrayList<Location>();
-	public boolean isRandom(){
-		return true;
+	public <T extends Event> boolean isRandom(T event){
+		return !inDeath.contains(((EntityDamageByEntityEvent) event).getDamager()) && rand.nextInt(20) == 5;
 	}
 
 	@Override
 	public <T extends Event> void startEvent(T event) {
 		EntityDamageByEntityEvent ev = (EntityDamageByEntityEvent) event;
 		if(ev.getEntityType() != EntityType.PLAYER && ev.getDamager().getType() == EntityType.PLAYER && ev.getEntity() instanceof Monster){
-			Monster ent = (Monster) ev.getEntity();
+			mob = (Monster) ev.getEntity();
 			player = (Player) ev.getDamager();
-
-			Location pl= player.getLocation();
+			inDeath.add(player);
+			center = player.getLocation();
+			Location pl = center.clone();
 			Location l1 = pl.clone().add(15, 255, 15);
 			Location l2 = pl.clone().add(-15, -pl.getY(),-15);
 
@@ -61,20 +66,16 @@ public class MobDeathMatch implements TickableEvent, Listener{
 					entity.remove();
 				}
 			}
-
-			int a = new Random().nextInt(15);
-			for(int b = 0; b < a; b++){
-				Monster en = (Monster) pl.getWorld().spawnEntity(rg.getRandomSurface(), ent.getType());
-				en.setTarget(player);
-				mobs.add(en);
-			}
-
 			player.sendMessage(ChatColor.GOLD+"Suddenly, a Death Match! Don't DIE");
-			drawBorder(rg);
 			Bukkit.getPluginManager().registerEvents(this, TenJava.getPlugin());
 		}
 	}
 
+	public void clearBorder(){
+		fire.stream().forEach((loc) -> loc.getBlock().setType(Material.AIR));
+		fire.clear();
+	}
+	
 	public void drawBorder(Region rg){
 		for(int x = rg.getMin().getBlockX() ; x < rg.getMax().getBlockX(); x++){
 			{ 
@@ -130,17 +131,47 @@ public class MobDeathMatch implements TickableEvent, Listener{
 	}
 
 	int tick = 0;
+	public boolean spawned = false;
+	public boolean end = false;
+	Region trg; 
 	@Override
 	public boolean tick() {
+		if(end) return true;
+		System.out.println(tick);
 		tick ++;
-		if(mobs.size() == 0){
-			
-			
+		if(tick < 30 && tick % 2 == 0){
+			int no = tick / 2;
+			clearBorder();
+			trg = new Region(center.clone().add(no, 0, no), center.clone().subtract(no,0,no));
+			drawBorder(trg);
+		}
+		if(!spawned && tick >= 30){
+			int a = new Random().nextInt(20);
+			for(int b = 0; b < a; b++){
+				Monster en = (Monster) center.getWorld().spawnEntity(rg.getRandomSurface(), mob.getType());
+				en.setTarget(player);
+				mobs.add(en);
+			}
+			spawned = true;
+		}
+		if(tick > 150 && mobs.size() == 0){
+			Item item = center.getWorld().dropItemNaturally(rg.getRandomLocation(), new ItemStack(Material.values()[rand.nextInt(Material.values().length)], rand.nextInt(5)));
+			player.sendMessage(ChatColor.AQUA + "You win! A "+item.getItemStack().getType()+" has dropped as a prize! ");
+
+			endGame();
 			return true;
 		}
 		return false;
 	}
 
+	public void endGame(){
+		clearBorder();
+		player = null;
+		rg = null;
+		outer = null;
+		end = true;
+	}
+	
 	@EventHandler
 	public void target(EntityTargetLivingEntityEvent ev){
 		if(mobs.contains(ev.getEntity()) && ev.getTarget() != player){
@@ -150,21 +181,21 @@ public class MobDeathMatch implements TickableEvent, Listener{
 
 	@EventHandler
 	public void playerMove(PlayerMoveEvent ev){
-		if(ev.getPlayer() == player && !rg.isInside(ev.getTo())){
+		if(player != null && ev.getPlayer() == player && !rg.isInside(ev.getTo())){
 			ev.setTo(ev.getFrom());
 		}
 	}
 
 	@EventHandler
 	public void fireSpread(BlockFadeEvent ev){
-		if(outer.isInside(ev.getBlock().getLocation())){
+		if(outer != null &&  outer.isInside(ev.getBlock().getLocation())){
 			ev.setCancelled(true);
 		}
 	}
 
 	@EventHandler
 	public void fireSpread(BlockBurnEvent ev){
-		if(outer.isInside(ev.getBlock().getLocation())){
+		if(outer != null && outer.isInside(ev.getBlock().getLocation())){
 
 			ev.setCancelled(true);
 		}
@@ -172,14 +203,21 @@ public class MobDeathMatch implements TickableEvent, Listener{
 
 	@EventHandler
 	public void fireSpread(BlockSpreadEvent ev){
-		if(outer.isInside(ev.getBlock().getLocation())){
+		if(outer != null && outer.isInside(ev.getBlock().getLocation())){
 			ev.setCancelled(true);
 		}
 	}
 
+	@EventHandler
+	public void killEnt(EntityDeathEvent ev){
+		mobs.remove(ev.getEntity());
+	}
 
 	@EventHandler
-	public void fireSpread(BlockIgniteEvent ev){
-		ev.setCancelled(true);
+	public void killPlayer(PlayerDeathEvent ev){
+		if(ev.getEntity() == player){
+			player.sendMessage(ChatColor.RED+"You lose :(");
+			endGame();
+		}
 	}
 }
