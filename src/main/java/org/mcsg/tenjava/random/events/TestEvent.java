@@ -19,4 +19,9 @@ public class TestEvent implements TickableEvent{
 		return tick > 5;
 	}
 
+	@Override
+	public RandomEvent getInstance() {
+		return new TestEvent();
+	}
+
 }

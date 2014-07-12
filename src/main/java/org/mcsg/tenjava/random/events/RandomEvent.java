@@ -14,4 +14,11 @@ public interface RandomEvent {
 	 */
 	public void startEvent();
 	
+	
+	
+	/**
+	 * return a new instance of this event
+	 * @return get and instance of this event
+	 */
+	public RandomEvent getInstance();
 }

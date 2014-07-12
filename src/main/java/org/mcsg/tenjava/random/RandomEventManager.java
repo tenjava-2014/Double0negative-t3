@@ -17,7 +17,7 @@ import org.mcsg.tenjava.random.events.TickableEvent;
 public class RandomEventManager implements Listener{
 
 	//singleton instance
-	private static RandomEventManager instance;
+	private static RandomEventManager instance = new RandomEventManager();
 	private RandomEventManager(){}
 	
 	public static RandomEventManager getInstance(){
@@ -31,7 +31,7 @@ public class RandomEventManager implements Listener{
 	
 	private long tick = 0;
 	private long nextRandomTick = 0;
-	private int maxBetweenTicks = 500;
+	private int maxBetweenTicks = 100;
 	
 	public void setup(){
 		nextRandomTick = rand.nextInt(maxBetweenTicks);
@@ -42,6 +42,7 @@ public class RandomEventManager implements Listener{
 			tick++;
 			TenJava.fireEvent(new ServerTickEvent(tick));
 		}, 0, 1);
+		Bukkit.getPluginManager().registerEvents(this, TenJava.getPlugin());
 	}
 	
 	public void addEvent(Event bukkitEvent, RandomEvent event){
@@ -53,11 +54,12 @@ public class RandomEventManager implements Listener{
 
 	@EventHandler
 	public void onTick(ServerTickEvent e){
-		tickEvents.stream().forEach((tickable) -> {if(tickable.tick()) tickEvents.remove(tickable); });
+		new ArrayList<>(tickEvents).stream().forEach((tickable) -> {if(tickable.tick()) tickEvents.remove(tickable); });
 		if(e.getTick() >= nextRandomTick){
+			nextRandomTick += rand.nextInt(maxBetweenTicks);
 			List<? extends RandomEvent> list = events.get(null);
 			if(list != null && list.size() > 0){
-				RandomEvent revent = list.get(rand.nextInt(list.size()));
+				RandomEvent revent = list.get(rand.nextInt(list.size())).getInstance();
 				revent.startEvent();
 				if(revent instanceof TickableEvent){
 					tickEvents.add((TickableEvent) revent);

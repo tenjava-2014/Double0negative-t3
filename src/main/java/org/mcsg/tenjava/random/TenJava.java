@@ -12,7 +12,9 @@ public class TenJava extends JavaPlugin {
 	public void onEnable(){
 		this.plugin = this;
 		
-		RandomEventManager.getInstance().setup();
+		RandomEventManager.
+		getInstance().
+		setup();
 	}
 	
 	public void onDisable(){

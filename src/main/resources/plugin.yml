@@ -1,3 +1,3 @@
 name: Double0negative-t3
-main: com.tenjava.entries.Double0negative.t3.TenJava
+main: org.mcsg.tenjava.random.TenJava
 version: '${project.version}'
